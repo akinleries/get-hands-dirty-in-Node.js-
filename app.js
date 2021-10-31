@@ -1,47 +1,26 @@
-const http = require('http');
-const fs = require('fs');
+ 
+const express = require('express');
+const bodyParser = require('body-parser');
 
-const server = http.createServer((req , res) => {
-   
-   const url = req.url;
-   const method = req.method;
+ const app = express();
 
+ app.use(bodyParser.urlencoded({ extended: false }));
+  
 
-   if(url === '/'){
-
-    res.write('<html>');
-    res.write('<head><title>Enter message</title></head>');
-    res.write('<body><form action = "/message" method = "POST"><input type = "text" name = "message">\<button type = "submit" name = "message">Send</button></form></body>');
-    res.write('</html>');
-    return res.end();
-
-   }
-
-   if (url === "/message" && method === "POST"){
-        const body = [];
-        req.on('data', (chunks) => {
-          body.push(chunks);
-        });
-
-
-        req.on('end', () => {
-          const parseBody = Buffer.concat(body).toString();
-          const message = parseBody.split('=')[1];
-          fs.writeFileSync('message.txt', message); 
-          res.statusCode = 302;
-          res.setHeader('Location', '/');
-          res.end();
-        });
-
-       
-   }
-    res.setHeader('Content-Type','text/html');
-    res.write('<html>'); 
-    res.write('<head><title>site Head</title></head>');
-    res.write('<body><h1>visit my page</h1></body>');
-    res.write('</html>');
-    res.end();
-
+ app.use( '/add-product', (request, response, next) => {
+ 
+   response.send('<form action = "/product" method = "POST"><input type ="text" name = "title"/><button type = "submit">add product</button></form>');
 });
 
-server.listen(3002);
+app.use( '/product', (request, response, next) => {
+    console.log(request.body);
+    response.redirect("/");
+});
+
+
+app.use('/', (request, response, next) => {
+  console.log("middlleware");
+  response.send('<h1>home node.js  world</h1>');
+});
+
+  app.listen(3000);
